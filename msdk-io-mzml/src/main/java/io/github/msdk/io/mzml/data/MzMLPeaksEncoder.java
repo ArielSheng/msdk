@@ -21,6 +21,13 @@ import java.util.zip.Deflater;
 
 import io.github.msdk.MSDKException;
 import io.github.msdk.io.mzml.util.MSNumpress;
+import net.csibio.aird.bean.Compressor;
+import net.csibio.aird.compressor.ComboComp;
+import net.csibio.aird.compressor.bytecomp.ZstdWrapper;
+import net.csibio.aird.compressor.intcomp.VarByteWrapper;
+import net.csibio.aird.compressor.sortedintcomp.IntegratedBinPackingWrapper;
+import net.csibio.aird.compressor.sortedintcomp.IntegratedVarByteWrapper;
+import net.csibio.aird.parser.BaseParser;
 
 /**
  * <p>
@@ -46,6 +53,11 @@ public abstract class MzMLPeaksEncoder {
     byte[] encodedData = null;
     int encodedBytes;
 
+    // Aird ComboComp Compression if necessary
+    if(compression == MzMLCompressionType.AIRD_COMBOCOMP){
+        byte[] tmp = AirdComboComp(data);
+        return Base64.getEncoder().encode(tmp);
+    }
     // MSNumpress compression if required
     switch (compression) {
       case NUMPRESS_LINPRED:
@@ -99,6 +111,41 @@ public abstract class MzMLPeaksEncoder {
 
   }
 
+  private static int fetchMz(double target, int mzPrecision) {
+    int result = -1;
+    try {
+      result = (int) Math.round(target * mzPrecision);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return result;
+  }
+
+  private static int fetchIntensity(double target, int intensityPrecision) {
+    int result = 0;
+    double ori = target * intensityPrecision;
+    if (ori <= Integer.MAX_VALUE) {
+      result = (int) Math.round(ori); // 四舍五入到最接近的整数
+    } else {
+      result = (int) (-Math.round(Math.log(ori) / Math.log(2) * 100000));
+    }
+    return result;
+  }
+
+  private static byte[] AirdComboComp(double[] data) {
+    int size = data.length;
+    if (size == 0){
+      return new byte[0];
+    }
+    int[] mzArray = new int[size];
+    for (int i = 0; i < size; i++)
+    {
+      mzArray[i] = fetchMz(data[i], 100000);
+    }
+    // m/z: IVB + Zstd
+    return  ComboComp.encode(new IntegratedVarByteWrapper(), new ZstdWrapper(), mzArray);
+  }
+
   /**
    * <p>
    * encodeFloat.
@@ -113,6 +160,12 @@ public abstract class MzMLPeaksEncoder {
       throws MSDKException {
 
     byte[] encodedData = null;
+
+    // Aird ComboComp Compression if necessary
+    if(compression == MzMLCompressionType.AIRD_COMBOCOMP){
+      byte[] tmp = AirdComboComp(data);
+      return Base64.getEncoder().encode(tmp);
+    }
 
     // MSNumpress compression if required
     switch (compression) {
@@ -141,7 +194,20 @@ public abstract class MzMLPeaksEncoder {
       default:
         return Base64.getEncoder().encode(encodedData);
     }
+  }
 
+  private static byte[] AirdComboComp(float[] data) {
+    int size = data.length;
+    if (size == 0){
+      return new byte[0];
+    }
+    int[] intArray = new int[size];
+    for (int i = 0; i < size; i++)
+    {
+      intArray[i] = fetchIntensity(data[i], 1);
+    }
+    // intensity: VB + Zstd
+    return  ComboComp.encode(new VarByteWrapper(), new ZstdWrapper(), intArray);
   }
 
   /**

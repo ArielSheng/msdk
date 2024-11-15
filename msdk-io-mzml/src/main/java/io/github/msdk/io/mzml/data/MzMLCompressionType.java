@@ -21,6 +21,7 @@ public enum MzMLCompressionType {
   NUMPRESS_POSINT("MS:1002313", "MS-Numpress positive integer compression"), //
   NUMPRESS_SHLOGF("MS:1002314", "MS-Numpress short logged float compression"), //
   ZLIB("MS:1000574", "zlib compression"), //
+  AIRD_COMBOCOMP("MS:1002844", "aird comboComp compression"), //
   NO_COMPRESSION("MS:1000576", "no compression"), //
   NUMPRESS_LINPRED_ZLIB("MS:1002746",
       "MS-Numpress linear prediction compression followed by zlib compression"), //

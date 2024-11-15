@@ -55,7 +55,7 @@ import javolution.xml.stream.XMLStreamException;
 /**
  * <p>
  * This class contains methods which can be used to write data contained in a
- * {@link o.github.msdk.datamodel.rawdata.RawDataFile RawDataFile} to a file, in mzML format
+ * {@link io.github.msdk.datamodel.RawDataFile RawDataFile} to a file, in mzML format
  * </p>
  */
 public class MzMLFileExportMethod implements MSDKMethod<Void> {
@@ -90,7 +90,7 @@ public class MzMLFileExportMethod implements MSDKMethod<Void> {
    * Constructor for MzMLFileExportMethod.
    * </p>
    *
-   * @param rawDataFile the input {@link o.github.msdk.datamodel.rawdata.RawDataFile RawDataFile}
+   * @param rawDataFile the input {@link io.github.msdk.datamodel.RawDataFile RawDataFile}
    *        which contains the data to be exported
    * @param target the target {@link java.io.File File} to write the data, in mzML format
    * @param doubleArrayCompression compression type for <code>double[]</code> which are encoded
@@ -110,7 +110,7 @@ public class MzMLFileExportMethod implements MSDKMethod<Void> {
    *
    * <p>
    * Execute the process of writing the data from the the input
-   * {@link o.github.msdk.datamodel.rawdata.RawDataFile RawDataFile} to the target
+   * {@link io.github.msdk.datamodel.RawDataFile RawDataFile} to the target
    * {@link java.io.File File}
    * </p>
    */
